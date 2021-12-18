@@ -66,7 +66,10 @@ func getDups(w io.Writer, r io.Reader, pos int) error {
 
 	gd := &dupsFinder{mapper: make(map[litVal][]string)}
 	ast.Walk(gd, constNode)
-	printDups(*gd, w)
+	err = printDups(*gd, w)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
