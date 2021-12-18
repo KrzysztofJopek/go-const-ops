@@ -13,6 +13,8 @@ endfunction
 
 
 
+let g:constutils#err_list = []
+
 let g:constutils#wrap_prefix = 'ErrGo'
 let g:constutils#wrap_function = 'wrapper.NewErrorWrap'
 let g:constutils#err_package = 'wrapper'
@@ -26,6 +28,7 @@ function! constutils#WrapError()
 
   let l:command = printf("i%s(%s.%s, ea)", g:constutils#wrap_function, g:constutils#err_package, l:err_name)
   execute 'normal! ' . l:command
+  call add(g:constutils#err_list, l:err_name)
 endfunction
 
    
