@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"flag"
 	"fmt"
 	"go/ast"
@@ -37,12 +38,18 @@ func (v *dupsFinder) Visit(node ast.Node) ast.Visitor {
 	return v
 }
 
-func printDups(mapper dupsFinder) {
+func printDups(mapper dupsFinder, r io.Writer) error {
+	buff := bytes.Buffer{}
 	for i, v := range mapper.mapper {
 		if len(v) > 1 {
-			fmt.Printf("Duplicated value: %s\n", i.value)
+			buff.WriteString(fmt.Sprintf("Duplicated value: %s\n", i.value))
 		}
 	}
+	_, err := io.Copy(r, &buff)
+	if err != nil {
+		return fmt.Errorf("Could not print duplicates, IO error: %w", err)
+	}
+	return nil
 }
 
 func getDups(w io.Writer, r io.Reader, pos int) error {
@@ -59,7 +66,7 @@ func getDups(w io.Writer, r io.Reader, pos int) error {
 
 	gd := &dupsFinder{mapper: make(map[litVal][]string)}
 	ast.Walk(gd, constNode)
-	printDups(*gd)
+	printDups(*gd, w)
 	return nil
 }
 
